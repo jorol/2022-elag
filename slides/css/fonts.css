@@ -1,0 +1,60 @@
+@font-face {
+    font-family: 'Lato Sans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Lato Sans'), url(../fonts/Lato_Sans.woff) format('woff');
+}
+@font-face {
+    font-family: 'Hind Guntur Sans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Hind Guntur Sans'), url(../fonts/Hind_Guntur_Sans.woff) format('woff');
+}
+@font-face {
+    font-family: 'PT Sans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('PT Sans'), url(../fonts/PT_Sans.woff) format('woff');
+}
+@font-face {
+    font-family: 'Yanone Kaffeesatz';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Yanone Kaffeesatz'), url(../fonts/Yanone_Kaffeesatz.woff) format('woff');
+}
+@font-face {
+    font-family: 'EB Garamond Serif';
+    font-style: normal;
+    font-weight: normal;
+    src: local('EB Garamond Serif'), url(../fonts/EB_Garamond_Serif.woff) format('woff');
+}
+@font-face {
+    font-family: 'Source Serif Pro Serif';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Source Serif Pro Serif'), url(../fonts/Source_Serif_Pro_Serif.woff) format('woff');
+}
+@font-face {
+    font-family: 'Droid Serif';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Droid Serif'), url(../fonts/Droid_Serif.woff) format('woff');
+}
+@font-face {
+    font-family: 'Anonymous Pro Mono';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Anonymous Pro Mono'), url(../fonts/Anonymous_Pro_Mono.woff) format('woff2');
+}
+@font-face {
+    font-family: 'Cutive Mono';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Cutive Mono'), url(../fonts/Cutive_Mono.woff) format('woff2');
+}
+@font-face {
+    font-family: 'Ubuntu Mono';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Ubuntu Mono'), url(../fonts/Ubuntu_Mono.woff2) format('woff2');
+}

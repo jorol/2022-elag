@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="Processing, MARC, Open Source, Tools" />
+    <meta name="description" content="Processing MARC" />
+    <title>Processing MARC</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="css/fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle, inverse, title-slide
+
+# Processing MARC
+## … with open source tools
+### Johann Rolschewski
+### ELAG 2022
+
+---
+
+## Links
+
+Slides: https://jorol.de/elag/slides
+
+Exercises: https://jorol.de/elag/exercises.html
+
+Files: https://jorol.de/elag/processing-marc.zip
+
+Software: https://jorol.de/elag/vm.html
+
+---
+
+class: middle
+
+## "When MARC was created, the Beatles were a hot new group ..."
+
+---
+
+## MARC Must Die
+
+In 2002 Roy Tennant declared ["MARC Must Die"](https://www.libraryjournal.com/?detailStory=marc-must-die). Today the [MARC 21](https://www.loc.gov/marc/) format is still the workhorse of library metadata. Even our "Next Generation Library Systems" heavily rely on this standard from the ‘60s. Since we will continue to work with MARC 21 in the coming years, this tutorial will give an introduction to MARC 21.
+
+---
+
+## Agenda
+
+- MARC 21
+    - Introduction
+    - Record elements
+- Serializations 
+- Tools
+- Validation of MARC 21 records and common errors 
+- Statistical analysis of MARC 21 data sets 
+- Conversion of MARC 21 records 
+- Metadata extraction from MARC 21 records
+
+---
+
+## Literature
+
+- Avram (1975): *MARC; its History and implications.* &lt;http://catalog.hathitrust.org/Record/002993527&gt;
+- Eversberg (1999): *Was sind und was sollen Bibliothekarische Datenformate* [urn:nbn:de:gbv:084-1103231323](https://nbn-resolving.org/urn%3Anbn%3Ade%3Agbv%3A084-11032313237)
+- Tennant (2002): *MARC Must Die.* &lt;https://www.libraryjournal.com/?detailStory=marc-must-die&gt;.
+- Tennant (2013-2018): *MARC Usage in WorldCat* &lt;http://roytennant.com/proto/groundtruthing/&gt;.
+- Király (2019): *Validating 126 million MARC records* [10.1145/3322905.3322929](https://doi.org/10.1145/3322905.3322929)
+- Király (2019): *Measuring Metadata Quality* [10.13140/RG.2.2.33177.77920](https://doi.org/10.13140/RG.2.2.33177.77920)
+
+---
+
+## MARC 21 Format for Bibliographic Data
+
+[MARC 21 format for Bibliographic Data](https://www.loc.gov/marc/bibliographic/) is a standard designed to be a carrier for bibliographic information about printed and manuscript textual materials, computer files, maps, music, continuing resources, visual materials, and mixed materials. 
+
+Bibliographic data commonly includes titles, names, subjects, notes, publication data, and information about the physical description of an 
+item. 
+
+The standard defines [formats](https://www.loc.gov/marc/marcdocz.html) for the representation and exchange of [bibliographic](https://www.loc.gov/marc/bibliographic/), [authority](https://www.loc.gov/marc/authority/ecadhome.html), [holdings](https://www.loc.gov/marc/holdings/echdhome.html), [classification](https://www.loc.gov/marc/classification/eccdhome.html) and [community information](https://www.loc.gov/marc/community/eccihome.html) data in machine-readable form.
+
+---
+
+## A MARC record is composed of three elements: 
+
+* *Record structure*: an implementation of the international standard Format for Information Exchange (ISO 2709) and its American counterpart, Bibliographic Information Interchange (ANSI/NISO Z39.2).
+
+* *Content designation*: the codes and conventions established explicitly to identify and further characterize the data elements within a record.
+
+* *Data content of the record*: the content of the data elements that comprise a MARC record is usually defined by standards outside the formats (e.g. [ISBD](https://www.ifla.org/publications/international-standard-bibliographic-description), [AACR2](http://www.aacr2.org/), [RDA](http://www.rda-jsc.org/archivedsite/rdaprospectus.html) ).
+
+---
+
+## Code lists
+
+The MARC 21 standard also provides [lists of source codes](https://www.loc.gov/standards/sourcelist/index.html) for vocabularies, rules and schemes.
+
+---
+
+## Agency
+
+The MARC 21 standard is maintained by the [The Network Development and MARC Standards Office](https://www.loc.gov/marc/ndmso.html) and documented in detail: https://www.loc.gov/marc/marcdocz.html.
+
+---
+
+## Introduction
+
+For a short introduction to MARC 21 see the OCLCs ["Introduction"](https://www.oclc.org/bibformats/en/introduction.html) or ["Understanding MARC Bibliographic: Machine-Readable Cataloging"](https://www.loc.gov/marc/umb/) for a more detailed one. The history of MARC is documented in ["MARC, its history and implications"](https://babel.hathitrust.org/cgi/pt?id=mdp.39015034388556).
+
+---
+
+class: middle
+
+## MARC 21 serializations
+
+---
+
+## MARC (ISO 2709)
+
+A "MARC (ISO 2709)" record ([ISO 2709:2008](https://www.iso.org/standard/41319.html) &amp; [ANSI/NISO Z39.2-1994](https://www.niso.org/publications/ansiniso-z392-1994-r2016)) consists of three parts:
+
+* leader
+* directory
+* variable fields
+
+---
+
+## Leader
+
+The [leader](https://www.loc.gov/marc/specifications/specrecstruc.html#leader) has a fixed length of 24 ASCII characters which provide some basic information for processing the record. 
+
+Data elements are positionally defined, see https://www.loc.gov/marc/bibliographic/bdleader.html. 
+
+Leader positions 00-05  define the length of the records. The total length of a "MARC (2709)" record is limited to 99999 bytes. 
+
+Position 09 defines the "character coding scheme" ([MARC-8](https://www.loc.gov/marc/specifications/specchartables.html) or [Unicode](https://www.iso.org/standard/69119.html)). 
+
+---
+
+## Directory
+
+The [directory](https://www.loc.gov/marc/specifications/specrecstruc.html#direct) is variable sequence of entries, describing the tag, length and the starting position of each field. 
+
+Each directory entry has a length of 12 characters: 
+
+* tag: 00-02
+* lengt of field: 03-06
+* starting postion: 07-11
+
+The length of a "MARC (2709)" record field is limited to 9999 bytes.
+
+---
+
+## Variable fields
+
+The [variable fields](https://www.loc.gov/marc/specifications/specrecstruc.html#varifields) are [control fields](https://www.loc.gov/marc/bibliographic/bd00x.html) followed by data fields. 
+
+Data fields consist of two indicators and a sequence of subfields. 
+
+Indicators can be used interpret or supplement the data found in the field. Their meaning varies by field. 
+
+Each subfield consists of a subfield code and the corresponding value.
+
+Data fields and subfields could be repeatable.
+
+---
+
+## Separators
+
+A MARC record is terminated with a record terminator (Unicode character 'INFORMATION SEPARATOR THREE' [U+001D](https://www.fileformat.info/info/unicode/char/001d/index.htm)).
+
+Each part of a record is terminated with a field terminator (Unicode character 'INFORMATION SEPARATOR TWO' [U+001E](https://www.fileformat.info/info/unicode/char/001e/index.htm)).
+
+Each subfield of the data fields is terminated with a subfield terminator (Unicode character 'INFORMATION SEPARATOR THREE' [U+001F](https://www.fileformat.info/info/unicode/char/001e/index.htm)). 
+
+---
+
+## Example "MARC (ISO 2709)" record
+
+```no-highlight
+00998nas a2200325 c 4500001001000000003000700010005001700017
+007001500034008004100049016002200090016002200112022001400134
+035002500148035002100173040002800194041000800222082002400230
+245002700254246000900281264001800290300002100308336002600329
+337003200355338003700387362001300424363001900437655009900456
+856005300555856006400608^^987874829^^DE-101^^20171201121143.
+0^^cr||||||||||||^^080311c20079999|||u||p|o ||| 0||||1eng c^
+^7 ^_2DE-101^_a987874829^^7 ^_2DE-600^_a2415107-5^^  ^_a1940
+-5758^^  ^_a(DE-599)ZDB2415107-5^^  ^_a(OCoLC)502377032^^  ^
+_a8999^_bger^_cDE-101^_d9999^^  ^_aeng^^74^_a020^_qDE-600^_2
+22sdnb^^00^_aCode4Lib journal^_bC4LJ^^3 ^_aC4LJ^^31^_a[S.l.]
+^_c2007-^^  ^_aOnline-Ressource^^  ^_aText^_btxt^_2rdaconten
+t^^  ^_aComputermedien^_bc^_2rdamedia^^  ^_aOnline-Ressource
+^_bcr^_2rdacarrier^^0 ^_a1.2007 -^^01^_81.1\x^_a1^_i2007^^ 7
+^_0(DE-588)4067488-5^_0http://d-nb.info/gnd/4067488-5^_0(DE-
+101)040674886^_aZeitschrift^_2gnd-content^^4 ^_uhttp://journ
+al.code4lib.org/^_xVerlag^_zkostenfrei^^4 ^_uhttp://www.bibl
+iothek.uni-regensburg.de/ezeit/?2415107^_xEZB^^^]
+```
+
+---
+
+## Leader, directory and fields
+
+```no-highlight
+00251nas a2200121 c 4500
+```
+
+```no-highlight
+001001000000
+007001500010
+022001400025
+041000800039
+245002700047
+246000900074
+362001300083
+856003300096^^
+```
+
+```no-highlight
+987874829^^
+cr||||||||||||^^
+  ^_a1940-5758^^
+  ^_aeng^^
+00^_aCode4Lib journal^_bC4LJ^^
+3 ^_aC4LJ^^
+0 ^_a1.2007 -^^
+4 ^_uhttp://journal.code4lib.org/^^
+^]
+```
+
+---
+
+## MARC XML
+
+The Library of Congress provides a [framework](https://www.loc.gov/standards/marcxml/) for working with MARC data in XML environments. The framework consists of a XML schema for MARC data ([XSD](https://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd), [XSD illustration](https://www.loc.gov/standards/marcxml/xml/spy/spy.html)), [XSL stylesheets](https://www.loc.gov/standards/marcxml/#stylesheets) and some [tools](https://www.loc.gov/standards/marcxml/marcxml.zip) for transformation and validation of "MARC XML" data.
+
+"MARC XML" is often used to provide MARC data via APIs like [SRU](https://www.loc.gov/standards/sru/index.html) &amp; [OAI](https://www.openarchives.org/pmh/).
+
+"MARC XML" defines several ["MARC XML design considerations"](https://www.loc.gov/standards/marcxml/marcxml-design.html), one is the "roundtripability from XML back to MARC". 
+
+The schema doesn't limit the length of records and fields, so many data providers use "MARC XML" to circumvent the length restriction of "MARC (2709)". 
+
+---
+
+## Example "MARC XML" record
+
+```xml
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;collection xmlns="http://www.loc.gov/MARC21/slim"&gt;
+&lt;record&gt;
+  &lt;leader&gt;00251nas a2200121 c 4500&lt;/leader&gt;
+  &lt;controlfield tag="001"&gt;987874829&lt;/controlfield&gt;
+  &lt;controlfield tag="007"&gt;cr||||||||||||&lt;/controlfield&gt;
+  &lt;datafield tag="022" ind1=" " ind2=" "&gt;
+    &lt;subfield code="a"&gt;1940-5758&lt;/subfield&gt;
+  &lt;/datafield&gt;
+  &lt;datafield tag="041" ind1=" " ind2=" "&gt;
+    &lt;subfield code="a"&gt;eng&lt;/subfield&gt;
+  &lt;/datafield&gt;
+  &lt;datafield tag="245" ind1="0" ind2="0"&gt;
+    &lt;subfield code="a"&gt;Code4Lib journal&lt;/subfield&gt;
+    &lt;subfield code="b"&gt;C4LJ&lt;/subfield&gt;
+  &lt;/datafield&gt;
+  ...
+&lt;/record&gt;
+&lt;/collection&gt;
+```
+
+---
+
+## Turbomarc
+
+[Index Data](https://www.indexdata.com/) developed "Turbomarc", another XML serialization for MARC data. 
+
+The primary development goal of "Turbomarc" was [to speed up](https://www.indexdata.com/turbomarc-faster-xml-marc-records/) the processing of MARC data.
+
+---
+
+## Example "Turbomarc" record
+
+```xml
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;collection xmlns="http://www.indexdata.com/turbomarc"&gt;
+&lt;r&gt;
+  &lt;l&gt;00251nas a2200121 c 4500&lt;/l&gt;
+  &lt;c001&gt;987874829&lt;/c001&gt;
+  &lt;c007&gt;cr||||||||||||&lt;/c007&gt;
+  &lt;d022 i1=" " i2=" "&gt;
+    &lt;sa&gt;1940-5758&lt;/sa&gt;
+  &lt;/d022&gt;
+  &lt;d041 i1=" " i2=" "&gt;
+    &lt;sa&gt;eng&lt;/sa&gt;
+  &lt;/d041&gt;
+  &lt;d245 i1="0" i2="0"&gt;
+    &lt;sa&gt;Code4Lib journal&lt;/sa&gt;
+    &lt;sb&gt;C4LJ&lt;/sb&gt;
+  &lt;/d245&gt;
+  ...
+&lt;/r&gt;
+&lt;/collection&gt;
+```
+
+---
+
+## Line-based MARC formats
+
+There are several line-based MARC formats.
+
+These formats offer a more human-readable serialization of MARC records and are often used to examine, create or update MARC records.
+
+Several records are divided by a blank line.
+
+The formats differ slightly in the representation of MARC tags, indicators and subfield.
+
+---
+
+## MARC Line
+
+"MARC Line" is a simple line-by-line format also developed by Index Data.
+
+It is suitable for display but not recommended for further (machine) processing.  
+
+---
+
+## Example "MARC Line" record
+
+```no-highlight
+00251nas a2200121 c 4500
+001 987874829
+007 cr||||||||||||
+022    $a 1940-5758
+041    $a eng
+245 00 $a Code4Lib journal $b C4LJ
+246 3  $a C4LJ
+362 0  $a 1.2007 -
+856 4  $u http://journal.code4lib.org/
+
+```
+
+---
+
+## MARCMaker
+
+This format was developed to create MARC records without having to use a MARC-based system.
+
+It is the most widely used line-based format and supported by several software tools (e.g. Catmandu, MarcEdit) and libraries (e.g. marc4j, pymarc).
+
+---
+
+## Example "MARCMaker" record
+
+```no-highlight
+=LDR  00251nas a2200121 c 4500
+=001  987874829
+=007  cr||||||||||||
+=022  \\$a1940-5758
+=041  \\$aeng
+=245  00$aCode4Lib journal$bC4LJ
+=246  3\$aC4LJ
+=362  0\$a1.2007 -
+=856  4\$uhttp://journal.code4lib.org/
+
+```
+
+---
+
+## MicroLIF
+
+"[MicroLIF](http://web.sonoma.edu/users/h/huangp/MARC_MicroLIF.htm)" is a MARC compatible record format created by a group of publishers and vendors in the '80s.
+
+---
+
+## Example "MircoLIF" record
+
+```no-highlight
+LDR00251nas a2200121 c 4500^
+001987874829^
+007cr||||||||||||^
+022  _a1940-5758^
+041  _aeng^
+24500_aCode4Lib journal_bC4LJ^
+2463 _aC4LJ^
+3620 _a1.2007 -^
+8564 _uhttp://journal.code4lib.org/^
+
+```
+
+---
+
+## Aleph Sequential
+
+"Aleph Sequential" is a line-based serialization format used by Ex Libris Ltd. integrated library systems "[Aleph](https://exlibrisgroup.com/products/aleph-integrated-library-system/)".
+
+---
+
+## Example "Aleph Sequential" record
+
+```no-highlight
+987874829 FMT   L BK
+987874829 LDR   L 00251nas^a2200121^c^4500
+987874829 001   L 987874829
+987874829 007   L cr||||||||||||
+987874829 022   L $$a1940-5758
+987874829 041   L $$aeng
+987874829 24500 L $$aCode4Lib journal$$bC4LJ
+987874829 2463  L $$aC4LJ
+987874829 3620  L $$a1.2007 -
+987874829 8564  L $$uhttp://journal.code4lib.org/
+
+```
+
+---
+
+## MARC in JSON (MiJ)
+
+[JSON](https://www.json.org/) is a common lightweight data-interchange format which is also easy for humans to read and write.
+
+"MARC in JSON" (MiJ) defines a standard how to store MARC data as JSON objects. 
+
+---
+
+Example "MARC in JSON" record
+
+```json
+{
+    "leader":"00251nas a2200121 c 4500",
+    "fields":
+    [
+        {
+            "001":"987874829"
+        },
+        {
+            "245":
+            {
+                "subfields":
+                [
+                    {
+                        "a":"Code4Lib journal"
+                    },
+                    {
+                        "b":"C4LJ"
+                    }
+                ],
+                "ind1":"0",
+                "ind2":"0"
+            }
+
+        }
+    ]
+}
+```
+
+---
+
+## Catmandu JSON
+
+The [Catmandu](http://librecat.org/Catmandu/) data toolkit converts MARC records internally as an "[array of arrays](https://metacpan.org/pod/Catmandu::Importer::MARC#EXAMPLE-ITEM)", which can be exported as JSON or YAML objects.
+
+---
+
+## Example "Catmandu JSON" record
+
+```json
+{
+    "_id": "987874829",
+    "record": [
+        [
+            "LDR",
+            " ",
+            " ",
+            "_",
+            "00251nas a2200121 c 4500"
+        ],
+        [
+            "245",
+            "0",
+            "0",
+            "a",
+            "Code4Lib journal",
+            "b",
+            "C4LJ"
+        ]
+    ]
+}
+```
+
+---
+
+class: middle
+
+## Software
+
+---
+## Software
+
+For this tutorial we need some command-line tools to process MARC data. You can download a [VirtualBox](https://www.virtualbox.org/) image containing most of the required tools at the [Catmandu](https://librecatproject.wordpress.com/get-catmandu/) project. Please follow the installation instructions. Or install all tools on your own system. All necessary steps are described using a [Debian](https://www.debian.org/) based system. 
+
+---
+
+## Perl
+
+Some of these tools require a [Perl](https://www.perl.org/) interpreter. I recommend to install a local Perl environment on your system using [`perlbrew`](https://perlbrew.pl/):
+
+```bash
+# install perlbrew
+$ \curl -L https://install.perlbrew.pl | bash
+# edit .bashrc
+$ echo -e '\nsource ~/perl5/perlbrew/etc/bashrc\n' &gt;&gt; ~/.bashrc
+$ source ~/.bashrc
+# initialize
+$ perlbrew init
+# see what versions are available
+$ perlbrew available
+# install a Perl version
+$ perlbrew install -j 2 -n perl-5.34.1
+# see installed versions
+$ perlbrew list
+# switch to an installation and set it as default
+$ perlbrew switch perl-5.34.1
+# install cpanm
+$ perlbrew install-cpanm
+```
+
+---
+
+## Catmandu
+
+[Catmandu](https://librecat.org/Catmandu) is data toolkit which can be used for [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) processes. The project website provides some detailed [instructions](https://librecat.org/Catmandu/#installation) on how to install `catmandu` on different systems.
+
+```bash
+# install dependencies
+$ sudo apt install autoconf build-essential dconf-cli \
+libexpat1-dev ibgdbm-dev libssl-dev libxml2-dev libxslt1-dev \
+libyaz-dev parallel perl-doc yaz zlib1g zlib1g-dev
+# install Catmandu modules
+$ cpanm Catmandu Catmandu::Breaker Catmandu::Exporter::Table \
+Catmandu::Identifier Catmandu::Importer::getJSON Catmandu::MARC \
+Catmandu::OAI Catmandu::PICA Catmandu::PNX Catmandu::RDF \
+Catmandu::SRU Catmandu::Stat Catmandu::Template Catmandu::VIAF \
+Catmandu::Validator::JSONSchema Catmandu::Wikidata Catmandu::XLS \
+Catmandu::XSD Catmandu::Z3950
+```
+
+---
+
+## marcvalidate
+
+[MARC::Schema](https://metacpan.org/pod/MARC::Schema) provides the command-line utility `marcvalidate` to validate MARC records.
+
+```bash
+$ cpanm MARC::Schema 
+```
+
+---
+
+## marcstats.pl
+
+[MARC::Record::Stats](https://metacpan.org/pod/MARC::Record::Stats) provides the command-line utility `marcstats.pl` to generate statistics for your MARC records.
+
+```bash
+$ cpanm MARC::Record::Stats
+```
+
+---
+
+## uconv
+
+For [Unicode](https://home.unicode.org/) [normalizations](https://en.wikipedia.org/wiki/Unicode_equivalence) we need the command-line utility `uconv`.
+
+```bash
+$ sudo apt install libicu-dev
+```
+
+---
+
+## YAZ
+
+[YAZ](https://www.indexdata.com/resources/software/yaz/) is a free open source toolkit from [Index Data](https://www.indexdata.com/), that includes command-line utility programs like `yaz-client` and `yaz-marcdump`.
+
+```bash
+$ sudo apt install yaz
+```
+
+---
+
+## xmllint
+
+`xmllint` is a command-line tool to process XML data.
+
+```bash
+$ sudo apt install libxml2-utils
+```
+
+---
+
+## xsltproc
+
+For transformation of XML data with XSL stylesheets we need a [XSLT](https://en.wikipedia.org/wiki/XSLT) processor.
+
+```bash
+sudo apt install xsltproc
+```
+
+---
+
+## Documenation
+
+For more information of these tools you can read their `man` or `help` pages, e.g.:
+
+```bash
+$ man yaz-marcdump
+$ xmllint --help
+```
+
+---
+
+class: middle
+
+## Get MARC 21 data
+
+---
+
+## Open Data
+
+Several libraries and library networks publish their data as "[open data](https://en.wikipedia.org/wiki/Open_data)". 
+
+[Péter Király](https://github.com/pkiraly) created a list of international open MARC 21 data sets at &lt;https://github.com/pkiraly/metadata-qa-marc#datasources&gt;.
+
+The Internet Archive's [Open Library](http://openlibrary.org/) project is making thousands of library records freely available for anyone's use, see &lt;https://archive.org/details/ol_data&gt;.
+
+You can download the data sets via the command line, e.g.:
+
+```bash
+$ wget http://ered.library.upenn.edu/data/opendata/pau.zip
+$ unzip pau.zip
+```
+
+---
+
+## API
+
+Many libraries offer MARC 21 data via public [APIs](https://en.wikipedia.org/wiki/API) like Z39.50, SRU, OAI.
+
+---
+
+## Z39.50
+
+Z39.50 is a standard ([ANSI/NISO Z39.50-2003](https://www.loc.gov/z3950/agency/Z39-50-2003.pdf)) that defines a client/server based service and protocol for information retrieval. Like MARC 21 Z39.50 has a quite long history ([Lynch, 1997](http://www.dlib.org/dlib/april97/04lynch.html))  and is maintained by Library of Congress.
+
+Many libraries offer access to their Online Public Access Catalogues (OAPC) via Z39.50 server, e.g. [Library of Congress](https://www.loc.gov/z3950/lcserver.html) or [kobv](https://www.kobv.de/services/recherche/z39-50/). 
+
+---
+
+## Z39.50
+
+To retrieve data from Z39.50 servers you need a client software like `yaz-client` from [Index Data](https://www.indexdata.com/), which is part of the free open source toolkit "[YAZ](https://www.indexdata.com/resources/software/yaz/)":
+
+```bash
+# open client
+$ yaz-client
+# connect to database
+Z&gt; open lx2.loc.gov/LCDB
+# set format to MARC
+Z&gt; format 1.2.840.10003.5.10
+# set element set
+Z&gt; element F
+# append retrieved records to file
+Z&gt; set_marcdump loc.z3950.mrc
+# find record for subject
+Z&gt; find @attr 5=100 @attr 1=21 "Perl"
+# get first 50 records
+Z&gt; show 1+50
+# close client
+Z&gt; exit
+```
+
+---
+
+## Z39.50
+
+The Catmandu toolkit provides a Z39.50 client "[Catmandu::Importer::Z3950](https://metacpan.org/pod/Catmandu::Importer::Z3950)":
+
+```bash
+$ catmandu convert -v Z3950 \
+--host z3950.kobv.de \
+--port 210 \
+--databaseName k2 \
+--preferredRecordSyntax usmarc \
+--queryType PQF \
+--query '@attr 1=1016 code4lib' \
+--handler USMARC \
+to MARC &gt; code4lib.mrc
+```
+
+---
+
+## SRU
+
+[SRU](https://www.loc.gov/standards/sru/) (Search/Retrieve via URL) is another standard protocol for information retrival. It uses HTTP as application layer protocol and XML for data serialization. Search queries are expressed with [CQL](https://www.loc.gov/standards/sru/cql/index.html) (Contextual Query Language), a formal language for representing queries.
+
+---
+
+## SRU
+
+You can use the `yaz-client` to search and retrive data from a SRU server:
+
+```bash
+# open client
+$ yaz-client
+# connect to database
+Z&gt; open http://sru.k10plus.de/gvk
+# append retrieved records to file
+Z&gt; set_marcdump gvk.sru.xml
+# find record for subject
+Z&gt; find pica.sw=Perl
+# get first 50 records
+Z&gt; show 1+50
+# close client
+Z&gt; exit
+```
+
+---
+
+## SRU
+
+The Catmandu toolkit also provides a SRU client "[Catmandu::Importer::SRU](https://metacpan.org/pod/Catmandu::Importer::SRU)":
+
+```bash
+$ catmandu convert -v SRU \
+--base https://services.dnb.de/sru/zdb \
+--recordSchema MARC21-xml \
+--query 'dnb.iss = 1940-5758' \
+--parser marcxml \
+to MARC --type XML &gt; code4lib.sru.xml
+```
+
+---
+
+## OAI-PMH
+
+[OAI-PMH](https://www.openarchives.org/OAI/openarchivesprotocol.html) (Open Archives Initiative Protocol for Metadata Harvesting) is a protocol for metadata replication and distribution. _Data providers_ host metadata records and their changes over time, so _service providers_ can harvest it. As SRU it uses HTTP as application layer protocol and XML for data serialization.  
+
+---
+
+## OAI-PMH
+
+The Catmandu toolkit provides an OAI-PMH harvester "[Catmandu::Importer::OAI](https://metacpan.org/pod/Catmandu::Importer::SRU)":
+
+
+```bash
+$ catmandu convert -v OAI \
+--url https://lib.ugent.be/oai \
+--metadataPrefix marcxml \
+--from 2022-02-01 \
+--until 2022-02-01 \
+--handler marcxml \
+to MARC &gt; gent.oai.mrc
+```
+
+---
+
+class: middle
+
+## MARC 21 validation
+
+---
+
+## ... with yaz-marcdump
+
+The command-line tool `yaz-marcdump` can be used for several MARC related tasks. 
+
+To validate the structure of "MARC (ISO 2709)" records use the option `-n`, which will omit any other output:
+
+```bash
+$ yaz-marcdump -n loc.mrc
+```
+
+---
+
+If you want to validate records in other MARC formats you have to specify the format with option `-i`:
+
+```bash
+$ yaz-marcdump -n -i marcxml loc.mrc.xml
+```
+
+---
+
+If `yaz-marcdump` finds any errors it will output an error message:
+
+```bash
+$ yaz-marcdump -n bad_hathi_records.mrc 
+&lt;!-- EOF while searching for RS --&gt;
+```
+
+---
+
+To narrow down the error use option `-p`, which will print the record numbers and offsets:
+
+```bash
+$ yaz-marcdump -np bad_hathi_records.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+&lt;!-- Record 2 offset 1293 (0x50d) --&gt;
+&lt;!-- Record 3 offset 5259 (0x148b) --&gt;
+&lt;!-- Record 4 offset 6343 (0x18c7) --&gt;
+&lt;!-- EOF while searching for RS --&gt;
+```
+
+---
+
+class: middle
+
+## [Common structural problems](https://bibwild.wordpress.com/2010/02/02/structural-marc-problems-you-may-encounter/) in MARC records
+
+---
+
+## Invalid leader bytes
+
+```bash
+$ yaz-marcdump -np bad_leaders_10_11.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+Indicator length at offset 10 should hold a number 1-9. Assuming 2
+Identifier length at offset 11 should  hold a number 1-9. Assuming 2
+Length data entry at offset 20 should hold a number 3-9. Assuming 4
+Length starting at offset 21 should hold a number 4-9. Assuming 5
+Length implementation at offset 22 should hold a number. Assuming 0
+```
+
+---
+
+## Record exceeds the maximum length
+
+```bash
+$ yaz-marcdump -np bad_hathi_records.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+&lt;!-- Record 2 offset 1293 (0x50d) --&gt;
+&lt;!-- Record 3 offset 5259 (0x148b) --&gt;
+&lt;!-- Record 4 offset 6343 (0x18c7) --&gt;
+&lt;!-- EOF while searching for RS --&gt;
+```
+
+---
+
+## Field exceeds the maximum length
+
+```bash
+$ yaz-marcdump -np bad_oversize_field_bad_directory.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+&lt;!-- Record 2 offset 1571 (0x623) --&gt;
+Directory offset 240: Bad value for data length and/or length starting (0\x1Edrd-348919)
+Base address not at end of directory, base 242, end 241
+Directory offset 216: Data out of bounds 21398 &gt;= 11833
+&lt;!-- Record 3 offset 13404 (0x345c) --&gt;
+&lt;!-- Record 4 offset 16133 (0x3f05) --&gt;
+&lt;!-- Record 5 offset 18823 (0x4987) --&gt;
+```
+
+---
+
+## Invalid subfield element
+
+```bash
+$ yaz-marcdump -np -i marcxml chabon-bad-subfields-element.xml 
+yaz_marc_read_xml failed
+```
+
+---
+
+## MARC control character in internal data value
+
+```bash
+$ yaz-marcdump -np bad_data_value.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+Separator but not at end of field length=37
+```
+
+---
+
+## Wrong encoded character
+
+```bash
+$ yaz-marcdump -np bad_encoding.mrc 
+&lt;!-- Record 1 offset 0 (0x0) --&gt;
+No separator at end of field length=53
+No separator at end of field length=64
+```
+
+---
+
+## ... with xmllint
+
+Use `xmllint` to validate "MARC XML" data against the MARC [XSD schema](https://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd).
+
+If you just want validate the structure of "MARC XML" records, use the options `--noout` (which will omit any other output) and `--schema` (path to XSD file):
+
+```bash
+$ xmllint --noout \
+--schema http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd \
+loc.mrc.xml
+loc.mrc.xml validates
+$ xmllint --noout \
+--schema http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd \
+chabon-bad-subfields-element.xml
+chabon-bad-subfields-element.xml:8: element subfields: Schemas validity error : Element '{http://www.loc.gov/MARC21/slim}subfields': This element is not expected. Expected is ( {http://www.loc.gov/MARC21/slim}subfield ).
+chabon-bad-subfields-element.xml fails to validate
+``` 
+
+---
+
+## ... with marcvalidate
+
+While `yaz-marcdump` and `xmllint` are useful to identify structural problems within MARC records, `marcvalidate` can be used to validate MARC tags and subfield against a [Avram](https://format.gbv.de/schema/avram/specification) specification. The default specification was build by [Péter Király](https://pkiraly.github.io/2018/01/28/marc21-in-json/) based on the MARC documentation of the Library of Congress. The specification can be enhanced with local defined fields.
+
+By default `marcvalidate` expects "MARC (ISO 2709)" records:
+
+```bash
+$ marcvalidate loc.mrc
+12360325    906 unknown field    
+1180649 035 unknown subfield    9
+...
+```
+
+---
+
+To validate "MARC XML" data use option `--type`:
+
+```bash
+$ marcvalidate --type XML loc.mrc.xml
+12360325    906 unknown field    
+1180649 035 unknown subfield    9
+...
+```
+
+---
+
+To validate against a local Avram schema use option `--schema`:
+
+```bash
+$ marcvalidate --schema my_schema.json loc.mrc
+```
+---
+
+## Avram schema for MARC
+
+```
+...
+"022": {
+    "historical-subfields": {
+        "b": {
+            "label": "Form of issue [OBSOLETE] [CAN/MARC only]"
+        },
+        "c": {
+            "label": "Price [OBSOLETE] [CAN/MARC only]"
+        }
+    },
+    "indicator1": {
+        "codes": {
+            " ": {
+                "label": "No level specified"
+            },
+            "0": {
+                "label": "Continuing resource of international interest"
+            },
+            "1": {
+                "label": "Continuing resource not of international interest"
+            }
+        },
+        "label": "Level of international interest"
+    },
+    "indicator2": null,
+    "label": "International Standard Serial Number",
+    "repeatable": true,
+    "subfields": {
+        "2": {
+            "label": "Source",
+            "repeatable": false
+        },
+        "6": {
+            "label": "Linkage",
+            "repeatable": false
+        },
+        "8": {
+            "label": "Field link and sequence number",
+            "repeatable": true
+        },
+        "a": {
+            "label": "International Standard Serial Number",
+            "repeatable": false
+        },
+        "l": {
+            "label": "ISSN-L",
+            "repeatable": false
+        },
+        "m": {
+            "label": "Canceled ISSN-L",
+            "repeatable": true
+        },
+        "y": {
+            "label": "Incorrect ISSN",
+            "repeatable": true
+        },
+        "z": {
+            "label": "Canceled ISSN",
+            "repeatable": true
+        }
+    },
+    "tag": "022",
+    "url": "https://www.loc.gov/marc/bibliographic/bd022.html"
+},
+...
+```
+
+
+---
+
+## QA catalogue
+
+If you want to run more detailed analyses check "[QA catalogues - a metadata quality assessment tool for MARC records](https://github.com/pkiraly/metadata-qa-marc)".
+
+---
+
+class: middle
+
+## MARC statistics
+
+---
+
+## ... with marcstats.pl
+
+To generate statistics for tags and subfield codes of "MARC (ISO 2709)" records use `marcstats.pl`.
+
+```bash
+$ marcstats.pl loc.mrc
+Statistics for 50 records
+Tag     Rep.    Occ.,%
+001             100.00
+005             100.00
+006               2.00
+020              76.00
+   a             76.00
+   q              2.00
+035     [Y]      48.00
+   9    [Y]      18.00
+   a    [Y]      30.00
+...
+```
+
+---
+
+## ... with Catmandu
+
+If you want generate statistics for other MARC serialization use  [Catmandu::Breaker](https://metacpan.org/pod/Catmandu::Breaker). First you need to "break" the MARC records into pieces. Afterwards you can calculate statistics for MARC tags and subfield codes. 
+
+```bash
+$ catmandu convert MARC --type XML to Breaker --handler marc \
+&lt; loc.mrc.xml &gt; loc.breaker
+$ catmandu breaker loc.breaker
+```
+
+---
+
+With option `--fields` you can calculate statistics for specific tags and subfield codes:
+
+```bash
+$ catmandu breaker --fields 245a,020a loc.breaker
+| name | count | zeros | zeros% | min | max | mean | variance | stdev | uniq~ | uniq% | entropy |
+|------|-------|-------|--------|-----|-----|------|----------|-------|-------|-------|---------|
+| #    | 50    |       |        |     |     |      |          |       |       |       |         |
+| 245a | 50    | 0     | 0.0    | 1   | 1   | 1    | 0.0      | 0.0   | 45    | 90.1  | 5.4/5.6 |
+| 020a | 52    | 12    | 24.0   | 0   | 4   | 1.04 | 0.8      | 0.9   | 51    | 98.2  | 5.3/6.0 |
+```
+
+---
+
+Use option `--as` to specify a tabular output format (CSV, TSV, XLS(X)):
+
+```bash
+$ catmandu breaker --as XLSX loc.breaker &gt; loc.xlsx
+```
+
+---
+
+class: middle
+
+## Unicode
+
+---
+
+## MARC-8 and Unicode
+
+"MARC (ISO 2709)" records could be encoded in two different character coding schemes: [MARC-8](https://www.loc.gov/marc/specifications/specchartables.html) or [UCS/Unicode](https://www.iso.org/standard/69119.html).
+
+Use `yaz-marcdump` to convert the encoding of MARC records. Specify the encoding with options `-f` and `-t`. With option `-l` you can set the character coding scheme in the MARC leader position 09.
+
+```bash
+$ yaz-marcdump -f MARC-8 -t UTF-8 -o marc -l 9=97 marc21.raw \
+&gt; marc21.utf8.raw
+```
+
+A conversion from UTF-8 to MARC-8 is not recommended, because it could be "lossy".
+
+---
+
+## Unicode normalization
+
+Unicode provides single code points for many characters that could be viewed  as combinations of two or more characters, e.g. German umlauts:
+
+| Composed/NFC | Decomposed/NFD |
+|----------|------------|
+| ä ([Latin Small Letter A with Diaeresis](https://www.compart.com/en/unicode/U+00E4) U+00E4) | a ([Latin Small Letter A](https://www.compart.com/en/unicode/U+0061) U+0061) + ◌̈ ([Combining Diaeresis](https://www.compart.com/en/unicode/U+0308) U+0308) |
+
+---
+
+## uconv
+
+With the command-line utility `uconv` you can transliterate data between different Unicode [normalization forms](https://unicode.org/reports/tr15/#Norm_Forms): 
+
+```bash
+$ uconv -x NFC marc21.nfd.xml &gt; marc21.nfc.xml
+$ uconv -x NFD marc21.nfc.xml &gt; marc21.nfd.xml
+```
+
+You should only normalize "MARC XML" data, as the normalization of "MARC (ISO 2709)" would result in corrupted records, due to different field length.
+
+---
+
+Use option `-x Any-Name` to show Unicode names of characters:
+
+```bash
+$ echo -en 'ÅÅ' | uconv -x Any-Name
+\N{ANGSTROM SIGN}\N{LATIN CAPITAL LETTER A WITH RING ABOVE}
+```
+
+---
+
+class: middle
+
+## Transformation of MARC data
+
+---
+
+## ... with yaz-marcdump
+
+`yaz-marcdump` can be used to tranform MARC data between different serializations. Use options `-i` and `-o` to specfiy the input and output formats.
+
+---
+
+## "MARC (ISO 2709)" to "MARC XML"
+
+```bash
+$ yaz-marcdump -i marc -o marcxml code4lib.mrc &gt; code4lib.xml
+```
+
+---
+
+## "MARC (ISO 2709)" to "Turbomarc"
+
+```bash
+$ yaz-marcdump -i marc -o turbomarc code4lib.mrc &gt; code4lib.turbo.xml
+```
+
+---
+
+## "MARC (ISO 2709)" to "MARC Line"
+
+```bash
+$ yaz-marcdump -i marc -o line code4lib.mrc &gt; code4lib.line
+```
+
+---
+
+## "MARC XML" to "MARC-in-JSON"
+
+```bash
+$ yaz-marcdump -i marcxml -o json code4lib.mrc.xml &gt; code4lib.json
+```
+
+---
+
+## ... with Catmandu
+
+The command-line interface of the Catmandu toolkit also offers several tranformations of MARC data. The default MARC serialization is "MARC (ISO 2709)".
+
+---
+
+## "MARC (ISO 2709)" to "MARC XML"
+
+```bash
+$ catmandu convert MARC to MARC --type XML &lt; code4lib.mrc \
+&gt; code4lib.xml
+```
+
+---
+
+## "MARC XML" to "MARC (ISO 2709)"
+
+```bash
+$ catmandu convert MARC --type XML to MARC &lt; code4lib.xml \
+&gt; code4lib.mrc
+```
+
+---
+
+## "MARC (ISO 2709)" to "MARCMaker"
+
+```bash
+$ catmandu convert MARC to MARC --type MARCMaker &lt; code4lib.mrc \
+&gt; code4lib.mrk
+```
+
+---
+
+## "MARC XML" to "MARC-in-JSON"
+
+```bash
+$ catmandu convert MARC --type XML to MARC --type MiJ \
+&lt; code4lib.xml &gt; code4lib.json
+```
+
+---
+
+## "MARC XML" to YAML
+
+```bash
+$ catmandu convert MARC to YAML &lt; code4lib.mrc \
+&gt; code4lib.yml
+```
+
+---
+
+## Breaker
+
+The [Catmandu::Breaker](https://metacpan.org/pod/Catmandu::Breaker) module "breaks" data into smaller components and exports them line by line:
+
+```bash
+$ catmandu convert MARC to Breaker --handler marc &lt; code4lib.mrc
+987874829   LDR 01031nas a2200337 c 4500
+987874829   001 987874829
+987874829   003 DE-101
+987874829   005 20200306093601.0
+987874829   007 cr||||||||||||
+987874829   008 080311c20079999|||u||p|o ||| 0||||1eng c
+987874829   0162    DE-101
+987874829   016a    987874829
+987874829   0162    DE-600
+987874829   016a    2415107-5
+987874829   022a    1940-5758
+987874829   035a    (DE-599)ZDB2415107-5
+...
+```
+
+---
+
+You can process this output with other command-line utilities like `grep`, `sort` and `uniq`. For example, to extract all ISBN from a MARC data sets, we can build a command-line [pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)) like this:
+
+```bash
+$ catmandu convert MARC to Breaker --handler marc &lt; loc.mrc \
+| grep -P '\t020a' | cut -f 3 | grep -oP '^[\dX]+' | sort | uniq -c
+      1 0072123397
+      1 0130284181
+      1 0201422190
+      1 0470176431
+      2 0596002270
+...
+```
+
+---
+
+## Generic file formats
+
+With Catmandu you can export data to generic data formats like CSV, JSON, TSV, XLSX and YAML. MARC serializations are "complex/nested data structures" which cannot be stored in flat data structures like tables. 
+
+You can export MARC records to nested formats like JSON and YAML:
+
+```bash
+$ catmandu convert MARC to YAML &lt; code4lib.mrc
+$ catmandu convert MARC to JSON &lt; code4lib.mrc
+```
+
+---
+
+This will **not** work:
+
+```bash
+$ catmandu convert MARC to CSV &lt; code4lib.mrc
+$ catmandu convert MARC to TSV &lt; code4lib.mrc
+$ catmandu convert MARC to XLSX &lt; code4lib.mrc
+```
+
+You need to use "[Catmandu::Fix](https://metacpan.org/pod/Catmandu::Fix)" to extract and map your data to a tabular data structure:
+
+```bash
+$ catmandu convert MARC to CSV \
+--fix 'marc_map(245abc,dc_title,join:" ");retain_field(dc_title)' \
+&lt; code4lib.mrc
+```
+
+---
+
+## ... with XLST
+
+If you want transform MARC records to other formats, you have to map MARC (sub)fields to corresponding fields of the other format. The Libary of Congress provides several crosswalks:
+
+* [MARC to MODS](https://www.loc.gov/standards/mods/mods-mapping.html)
+* [MODS to MARC](https://www.loc.gov/standards/mods/v3/mods2marc-mapping.html)
+* [MARC to Dublin Core](https://www.loc.gov/marc/marc2dc.html)
+* [Dublin Core to MARC](https://www.loc.gov/marc/dccross.html)
+* [ONIX to MARC](https://www.loc.gov/marc/onix2marc.html)
+
+
+Based on these crosswalks the Library of Congress published several [XLS stylesheets](https://www.loc.gov/standards/marcxml/#stylesheets), which can be used with a XSLT processor to transform "MARC XML" records to other formats like BIBFRAME, HTML, MODS, OAI-DC and RDF. 
+
+---
+
+## "MARC XML" to MODS
+
+```bash
+$ xsltproc MARC21slim2MODS3-7.xsl loc.mrc.xml &gt; loc.mods.xml
+```
+
+---
+
+## "MARC XML" to HTML
+
+```bash
+$ xsltproc MARC21slim2HTML.xsl loc.mrc.xml &gt; loc.html
+```
+
+---
+
+## "MARC XML" to "OAI-DC"
+
+```bash
+$ xsltproc MARC21slim2OAIDC.xsl loc.mrc.xml &gt; loc.oaidc.xml
+```
+
+---
+
+## "MARC XML" to "RDF-DC"
+
+```bash
+$ xsltproc MARC21slim2RDFDC.xsl loc.mrc.xml &gt; loc.rdfdc.xml
+```
+
+---
+
+## "MARC XML" to "[BIBFRAME](https://github.com/lcnetdev/marc2bibframe2)"
+
+```bash
+$ xsltproc bibframe-xsl/marc2bibframe2.xsl loc.mrc.xml \
+&gt; loc.bibframe.xml
+```
+
+---
+
+class: middle
+
+## Extract data from MARC records
+
+---
+
+## ... with xmllint 
+
+First check if a [XML namespace](https://www.w3.org/TR/xml-names/) is declared in the document:
+
+```bash
+$ head loc.mrc.xml
+&lt;collection xmlns="http://www.loc.gov/MARC21/slim"&gt;
+&lt;record&gt;
+  &lt;leader&gt;01227cam a22002894a 4500&lt;/leader&gt;
+  &lt;controlfield tag="001"&gt;12360325&lt;/controlfield&gt;
+  &lt;controlfield tag="005"&gt;20070126075126.0&lt;/controlfield&gt;
+  &lt;controlfield tag="008"&gt;010327s2001    nyua          001 0 eng  &lt;/controlfield&gt;
+  &lt;datafield tag="906" ind1=" " ind2=" "&gt;
+    &lt;subfield code="a"&gt;7&lt;/subfield&gt;
+    &lt;subfield code="b"&gt;cbc&lt;/subfield&gt;
+    &lt;subfield code="c"&gt;orignew&lt;/subfield&gt;
+```
+
+---
+
+If a namespace is set use the "local" XML element name in the [XPATH](https://www.w3.org/TR/2017/REC-xpath-31-20170321/) expression:
+
+```bash
+$ xmllint --xpath '//*[local-name()="controlfield"]/@tag' \
+loc.mrc.xml 
+```
+
+---
+
+## Extract all tags and count them
+
+```bash
+$ xmllint --xpath '//@tag' loc.mrc.xml | sort | uniq -c
+```
+
+---
+
+## Extract all IDs from MARC 001:
+
+```bash
+$ xmllint --xpath '//*[local-name()="controlfield"][@*[local-name()="tag" and .="001"]]/text()' loc.mrc.xml
+```
+
+---
+
+## Extract all subfields from MARC 245 fields
+
+```bash
+$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]' loc.mrc.xml
+```
+
+---
+
+## Extract subfield "a" from MARC 245 fields
+
+```bash
+$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/' loc.mrc.xml
+```
+
+---
+
+## Extract content from subfield "a" from MARC 245 fields
+
+```bash
+$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+```
+
+---
+
+## Extraxt all ISBNs
+
+```bash
+$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="020"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+```
+
+---
+
+## Extract all DDC numbers
+
+```bash
+$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="082"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+```
+
+---
+
+## ... Catmandu
+
+Catmandu uses a [domain specific language](https://en.wikipedia.org/wiki/Domain-specific_language) (DSL) called "fix" to extract, map and tranform data. Several "fixes" for library specifc data format like [MARC](https://metacpan.org/pod/Catmandu::MARC) and [PICA](https://metacpan.org/pod/Catmandu::PICA) are available. Most common "fixes" are documented on [cheat sheet](https://librecat.org/assets/catmandu_cheat_sheet.pdf). "Fixes" can be used as command-line options or stored in a "fix" file:
+
+```bash
+$ catmandu convert MARC to CSV \
+--fix 'marc_map(001,id); retain_field(id)' &lt; loc.mrc
+$ catmandu convert MARC to YAML --fix marc2dc.fix  &lt; loc.mrc
+```
+
+---
+
+## marc_map
+
+With [`marc_map`](https://metacpan.org/pod/Catmandu::Fix::marc_map) you can extract (sub)fields from MARC records and map them to your own data model: 
+
+```no-highlight
+marc_map(001,dc_identifier)
+# {"dc_identifier":"12360325"}
+```
+
+---
+
+## Extract part of field
+
+MARC uses several "fixed-length" fields, where data elements are positionally defined. E.g. if you want to extract the language code from MARC 008 specify the positions with `/35-37`:
+
+```no-highlight
+marc_map(008/35-37,dc_language)
+# {"dc_language":"eng"}
+```
+
+---
+
+## Extract fields with specific indicators
+
+If you want to extract fields with certain indicators specify them within sqare brackes `[1,4]` 
+
+```no-highlight
+marc_map("246[1,4]",marc_varyingFormOfTitle)
+# {"marc_varyingFormOfTitle":"Games, diversions &amp; Perl culture"}
+```
+
+---
+
+## Extract subfields
+
+To extract certain subfields from a MARC data field use the subfield codes. By default several subfields will be joined to one string. Use option `join` to join them with another string. With option `split:1` you cal split the subfields to a list. Use option `pluck` if you want to extract the subfields in a certain order. 
+
+```no-highlight
+marc_map(245ab,dc_title,join:' ')
+# {"dc_title":"Perl : the complete reference /"}
+marc_map(245ab,dc_title,split:1)
+# {"dc_title":["Perl :","the complete reference /"]}
+marc_map(245ba,dc_title,split:1,pluck:1)
+# {"dc_title":["the complete reference /","Perl :"]}
+```
+
+---
+
+## Extract repeatable fields
+
+MARC data fields could be repeatbale. Use option `split:1` to create a list from all fields. 
+
+```no-highlight
+marc_map(650a,dc_subject,split:1)
+# {"dc_subject":["Data mining.","Text processing (Computer science)","Perl (Computer program language)"]}
+```
+
+---
+
+## Extract repeatable subfields
+
+MARC subfields could be repeatable within a MARC data field.  Use option `split:1` to create a list from all fields. To create a list for all subfields within one data field use option `nested_arrays:1` which will return a "list of lists" of subfields, one list for each data field. 
+
+```no-highlight
+marc_map(655ay,marc_indexTermGenre,split:1)
+# {"marc_indexTermGenre":["Portrait photographs","1910-1920.","Photographic prints","1910-1920."]}
+marc_map(655ay,marc_indexTermGenre,split:1,nested_arrays:1)
+# {"marc_indexTermGenre":[["Portrait photographs","1910-1920."],["Photographic prints","1910-1920."]]}
+```
+
+---
+
+## Extract subfields by value
+
+To extract a subfield only if another subfield in the same data field has a certain value use a [loop](https://metacpan.org/pod/Catmandu::Fix::Bind::marc_each) with a [condition](https://metacpan.org/pod/Catmandu::Fix::Condition).
+
+```no-highlight
+=856  4\$uhttp://journal.code4lib.org/$xVerlag$zkostenfrei
+=856  4\$uhttp://www.bibliothek.uni-regensburg.de/ezeit/?2415107$xEZB
+```
+
+```no-highlight
+do marc_each()
+  if marc_match(856x,EZB)
+    marc_map(856u,ezb_uri)
+  end
+end
+# {"ezb_uri":"http://www.bibliothek.uni-regensburg.de/ezeit/?2415107"}
+```
+
+---
+
+## Conditions
+
+Use conditions [`marc_has`](https://metacpan.org/pod/Catmandu::Fix::Condition::marc_has), [`marc_has_many`](https://metacpan.org/pod/Catmandu::Fix::Condition::marc_has_many) or [`marc_match`](https://metacpan.org/pod/Catmandu::Fix::Condition::marc_match) to check if an record has certain fields or match certain conditions.
+
+```no-highlight
+set_array(errors)
+
+# Check if a 245 field is present
+unless marc_has('245')
+  set_field(errors.$append,"no 245 field")
+end
+ 
+# Check if there is more than one 245 field
+if marc_has_many('245')
+  set_field(errors.$append,"more than one 245 field?")
+end
+ 
+# Check if in 008 position 7 to 10 contains a 
+# 4 digit number ('\d' means digit)
+unless marc_match('008/07-10','\d{4}')
+  set_field(errors.$append,"no 4-digit year in 008 position 7-&gt;10")
+end
+``` 
+
+---
+
+## Add fields to a record
+
+You can add field to MARC records with [`marc_add`](https://metacpan.org/pod/Catmandu::Fix::marc_add).
+
+```no-highlight
+marc_add(999,a,my,b,local,c,field)
+marc_add(900,a,$.my.field)
+```
+
+---
+
+## Append values to (sub)fields
+
+Use [`marc_append`](https://metacpan.org/pod/Catmandu::Fix::marc_append) to append values to a (sub)field
+
+```no-highlight
+marc_append(001,'-X')
+marc_append(100a,' [author]')
+```
+
+---
+
+## Assign a value to (sub)fields
+
+Assign a new value to a MARC field with [`marc_set`](https://metacpan.org/pod/Catmandu::Fix::marc_set).
+
+```no-highlight
+marc_set(001,123456789)
+marc_set(245a,'Perl - battle tested.')
+```
+
+---
+
+## Remove (sub)fields
+
+Use [`marc_remove`](https://metacpan.org/pod/Catmandu::Fix::marc_remove) to remove (sub)fields from MARC records.
+
+```no-highlight
+marc_remove(991)
+marc_remove(9..)
+marc_remove(0359)
+```
+
+---
+
+## Replace strings in (sub)fields
+
+Use [`marc_replace_all`](https://metacpan.org/pod/Catmandu::Fix::marc_replace_all) to replace a string in MARC (sub)fields.
+
+```no-highlight
+marc_replace_all(001,1,X)
+marc_replace_all(245a,Perl,"Perl [programming language]")
+```
+
+---
+
+## Filter MARC records
+
+You can filter MARC records from a dataset with [`reject`](https://metacpan.org/pod/Catmandu::Fix::reject) or `select`.
+
+```no-highlight
+reject marc_has_many(245)
+select marc_match(245a,Perl)
+``` 
+
+---
+
+## Validate MARC records
+
+You can [`validate`](https://metacpan.org/pod/Catmandu::Fix::validate) MARC records and collect the error messages or filter [`valid`](https://metacpan.org/pod/Catmandu::Fix::Condition::valid) records.
+
+```no-highlight
+validate(.,MARC,error_field: errors)
+select valid(.,MARC)
+``` 
+
+---
+
+## Dictionaries
+
+MARC uses codes for [languages](https://www.loc.gov/marc/languages/language_code.html) and [countries](https://www.loc.gov/marc/countries/countries_code.html). You can build dictionaries based on these list and [lookup](https://metacpan.org/pod/Catmandu::Fix::lookup) names for these codes.
+
+```csv
+$ less languages.csv
+eng,English
+enm,English, Middle (1100-1500)
+epo,Esperanto
+esk,Eskimo languages
+est,Estonian
+..,
+```
+```no-highlight
+# { "dc_language": "eng" }
+lookup(dc_language,languages.csv)
+lookup(dc_language,languages.csv,default:English)
+lookup(dc_language,languages.csv,delete:1)
+# { "dc_language": "English" }
+``` 
+
+---
+
+## Normalize ISBNs and ISSNs
+
+Use [`issn`](https://metacpan.org/pod/Catmandu::Fix::issn),  [`isbn10`](https://metacpan.org/pod/Catmandu::Fix::isbn10) or [`isbn13`](https://metacpan.org/pod/Catmandu::Fix::isbn13) to normalize international identifier.
+
+```no-highlight
+# { "issn" : "1553667x" }
+issn(issn)
+# { "issn" : "1553-667X" }
+
+# { "isbn" : "1565922573" }
+isbn10(isbn) 
+# {"isbn" : "1-56592-257-3" }
+isbn13(isbn)
+# { "isbn" : "978-1-56592-257-0" }
+```
+
+---
+
+## Links
+
+Cheat sheet: http://librecat.org/assets/catmandu_cheat_sheet.pdf
+
+MARC mapping rules: https://github.com/LibreCat/Catmandu-MARC/wiki/Mapping-rules
+
+MARC tutorial: https://metacpan.org/pod/distribution/Catmandu-MARC/lib/Catmandu/MARC/Tutorial.pod
+
+Example "fix": http://librecat.org/Catmandu/#example-fix-script
+
+---
+
+## Thanks
+
+... to all open source developers and the Catmandu community for creating the tools
+
+... to Roy Tennant and Péter Király for their research on MARC data
+
+... to Jakob Voß for creating the tutorial "[Einführung in die Verarbeitung von PICA-Daten](https://pro4bib.github.io/pica/#/)", which I used as a template for "[Processing MARC](https://jorol.github.io/processing-marc/#/get_records)"
+
+---
+
+## My contact details
+
+Johann Rolschewski
+
+Email: johann.rolschewski@sbb.spk-berlin.de
+
+Github: jorol
+
+CPAN: JOROL
+
+    </textarea>
+    <script src="js/remark.js"></script>
+    <script>
+    var hljs = remark.highlighter.engine;
+    </script>
+    <script src="remark.language.js"></script>
+    <script type="text/javascript">
+    var slideshow = remark.create({
+    highlightStyle: 'monokai',
+    highlightLanguage: 'ini',
+    highlightLines: true,
+    /*ratio: '16:9',*/
+    /*slideNumberFormat: ''*/
+    });
+
+    /*hack for code highlighter*/
+    var elements = document.getElementsByClassName('no-highlight');
+    for(var i=0; i < elements.length; i++) {
+        elements[i].className += " hljs-github hljs";
+    }
+
+    </script>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  </body>
+</html>
