@@ -12,8 +12,6 @@ In 2002 Roy Tennant declared ["MARC Must Die"](http://soiscompsfall2007.pbworks.
 
 * Metadata extraction from MARC 21 records
 
-For most of the tasks we will use command line tools like `yaz-marcdump`, `marcstats`, `marcvalidate` and `catmandu`. 
-
 ## Requirements
 
 This bootcamp is aimed at systems librarians, metadata librarians and data managers. For most of the tasks we will use command line tools like `catmandu`, `marcvalidate`, `yaz-marcdump` and `xmllint`, so participants should be familiar with command line interfaces (CLI) and have a basic knowledge of library metadata. For exercises a notebook is required. You could use a [VirtualBox](https://www.virtualbox.org/wiki/Downloads) image with preinstalled tools (see [VM](VM.md)) or install all tools by yourself (see [Software](Software.md)). Participants could bring their own MARC 21 datasets to work with.
