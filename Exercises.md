@@ -77,6 +77,8 @@ Z> find @attr 5=100 @attr 1=21 "{SUBJECT}"
 Z> show 1+50
 # close client
 Z> exit
+# show file content
+$ cat -v elag.z3950.mrc
 ```
 
 ### ... from a SRU server with `catmandu`
@@ -92,7 +94,9 @@ $ catmandu convert -v SRU \
 --recordSchema MARC21-xml \
 --query 'dnb.tit = {TITLE}' \
 --parser marcxml \
-to MARC --type XML > elag.sru.xml
+to MARC --type XML --pretty 1 > elag.sru.xml
+# show file content
+$ xmllint --format elag.sru.xml
 ```
 
 ## Validate your data
@@ -125,8 +129,13 @@ $ marcvalidate --type XML elag.sru.xml
 
 ```bash
 $ marcstats.pl elag.z3950.mrc
+# marcstats.pl can handle only MARC (ISO 2709) files
+$ marcstats.pl <(catmandu convert MARC --type XML to MARC < elag.sru.xml)
 # replace spaces with dots & save result in file
 $ marcstats.pl --dots -o elag.z3950.stats.txt elag.z3950.mrc
+# show statistic
+$ less elag.z3950.stats.txt
+# press `q` to quit
 ```
 
 ### ... with `catmandu`
@@ -156,8 +165,11 @@ $ catmandu convert -v SRU \
 | xmllint --pretty 1 - > elag.nfd.xml
 # convert to Unicode normalization form NFC
 $ uconv -x NFC elag.nfd.xml > elag.nfc.xml
-# show difference between files. only lines with umlauts are marked. 
+# show difference between files: only lines with umlauts are marked. 
 $ diff elag.nfc.xml elag.nfd.xml
+# show Unicode code points
+$ echo -n 'ö' | uconv -x Any-Name
+$ echo -n 'ö' | uconv -x Any-Name
 ```
 
 ## Transform different MARC serializations
@@ -181,7 +193,9 @@ $ catmandu convert MARC --type XML to MARC --type MARCMaker < elag.sru.xml
 # MARC to Breaker
 $ catmandu convert MARC --type XML to Breaker --handler marc < elag.sru.xml 
 # MARC to CSV. mapping with fixes required.
-$ catmandu convert MARC --type XML to TSV --fix 'marc_map(022a,bibo_issn,join:";");marc_map(245abc,dc_title,join:" ");remove_field(record)' < elag.sru.xml
+$ catmandu convert MARC --type XML to TSV \
+--fix 'marc_map(022a,bibo_issn,join:";");marc_map(245abc,dc_title,join:" ");remove_field(record)' \
+< elag.sru.xml
 ```
 
 ### ... with `xlstproc`
@@ -291,15 +305,15 @@ Extract several subfields with certain codes:
 ```bash
 # as string
 $ catmandu convert MARC --type XML to JSON --pretty 1 \
---fix 'marc_map(245ab,dc_title,join:" ");remove_field(record)' \
+--fix 'marc_map(245abc,dc_title,join:" ");remove_field(record)' \
 < loc.mrc.xml
 # as array
 $ catmandu convert MARC --type XML to JSON --pretty 1 \
---fix 'marc_map(245ab,dc_title,split:1);remove_field(record)' \
+--fix 'marc_map(245abc,dc_title,split:1);remove_field(record)' \
 < loc.mrc.xml
 # as array in certain order
 $ catmandu convert MARC --type XML to JSON --pretty 1 \
---fix 'marc_map(245ba,dc_title,split:1,pluck:1);remove_field(record)' \
+--fix 'marc_map(245cba,dc_title,split:1,pluck:1);remove_field(record)' \
 < loc.mrc.xml
 ```
 
