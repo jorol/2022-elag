@@ -146,9 +146,10 @@ $ catmandu convert MARC --type XML to Breaker --handler marc \
 < elag.sru.xml > elag.sru.breaker
 # generate statistic
 $ catmandu breaker elag.sru.breaker
-# save statistic as XLSX file
-$ catmandu breaker --as XLSX elag.sru.breaker > elag.sru.xlsx
-$ soffice elag.sru.xlsx
+# save statistic as tab-separated TSV file
+$ catmandu breaker --as TSV elag.sru.breaker > elag.sru.tsv
+$ less elag.sru.tsv
+# press `q` to quit
 ```
 
 ## Unicode normalization
