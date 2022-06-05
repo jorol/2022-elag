@@ -23,13 +23,15 @@ class: center, middle, inverse, title-slide
 
 ## Links
 
-Slides: https://jorol.de/elag/slides
+Slides: https://jorol.github.io/2022-elag/slides
 
-Exercises: https://jorol.de/elag/exercises.html
+Exercises: https://jorol.github.io/2022-elag/#/Exercises
 
-Files: https://jorol.de/elag/processing-marc.zip
+Files: https://jorol.github.io/2022-elag/files/processing-marc.zip
 
-Software: https://jorol.de/elag/vm.html
+Software: https://jorol.github.io/2022-elag/#/Software
+
+VM: https://jorol.github.io/2022-elag/#/VM
 
 ---
 
@@ -61,12 +63,14 @@ In 2002 Roy Tennant declared ["MARC Must Die"](https://www.libraryjournal.com/?d
 
 ## Literature
 
-- Avram (1975): *MARC; its History and implications.* &lt;http://catalog.hathitrust.org/Record/002993527&gt;
-- Eversberg (1999): *Was sind und was sollen Bibliothekarische Datenformate* [urn:nbn:de:gbv:084-1103231323](https://nbn-resolving.org/urn%3Anbn%3Ade%3Agbv%3A084-11032313237)
-- Tennant (2002): *MARC Must Die.* &lt;https://www.libraryjournal.com/?detailStory=marc-must-die&gt;.
-- Tennant (2013-2018): *MARC Usage in WorldCat* &lt;http://roytennant.com/proto/groundtruthing/&gt;.
-- Király (2019): *Validating 126 million MARC records* [10.1145/3322905.3322929](https://doi.org/10.1145/3322905.3322929)
-- Király (2019): *Measuring Metadata Quality* [10.13140/RG.2.2.33177.77920](https://doi.org/10.13140/RG.2.2.33177.77920)
+- Henriette Avram (1975): *MARC; its History and implications.* <http://catalog.hathitrust.org/Record/002993527>
+- Bernhard Eversberg (1999): *Was sind und was sollen Bibliothekarische Datenformate* [urn:nbn:de:gbv:084-1103231323](https://nbn-resolving.org/urn%3Anbn%3Ade%3Agbv%3A084-11032313237)
+- Roy Tennant (2002): *MARC Must Die.* <https://www.libraryjournal.com/?detailStory=marc-must-die>
+- William E. Moen, Penelope Benardino (2003): *Assessing Metadata Utilization: An Analysis of MARC Content Designation Use* <https://dcpapers.dublincore.org/pubs/article/download/745/741.pdf>
+- Karen Smith-Yoshimura, Catherine Argus, Timothy J. Dickey, Chew Chiat Naun, Lisa Rowlinson de Oritz & Hugh Taylor (2010): *Implications of MARC Tag Usage on Library Metadata Practices* <https://www.oclc.org/content/dam/research/publications/library/2010/2010-06.pdf>
+- Roy Tennant (2013-2018): *MARC Usage in WorldCat* <http://roytennant.com/proto/groundtruthing/> (no longer available)
+- Péter Király (2019): *Validating 126 million MARC records* [10.1145/3322905.3322929](https://doi.org/10.1145/3322905.3322929)
+- Péter Király (2019): *Measuring Metadata Quality* [10.13140/RG.2.2.33177.77920](https://doi.org/10.13140/RG.2.2.33177.77920)
 
 ---
 
@@ -494,7 +498,7 @@ class: middle
 ---
 ## Software
 
-For this tutorial we need some command-line tools to process MARC data. You can download a [VirtualBox](https://www.virtualbox.org/) image containing most of the required tools at the [Catmandu](https://librecatproject.wordpress.com/get-catmandu/) project. Please follow the installation instructions. Or install all tools on your own system. All necessary steps are described using a [Debian](https://www.debian.org/) based system. 
+For this tutorial we need some command-line tools to process MARC data. You can download a [VirtualBox](https://www.virtualbox.org/) image containing most of the required tools: [elag.ova](https://jorol.de/elag/elag.ova). Please follow the installation instructions at the [Catmandu](https://librecatproject.wordpress.com/get-catmandu/) project site. Or install all tools on your own system. All necessary steps are described using a [Debian](https://jorol.github.io/2022-elag/#/Software) based system.
 
 ---
 
@@ -648,7 +652,9 @@ Many libraries offer MARC 21 data via public [APIs](https://en.wikipedia.org/wik
 
 Z39.50 is a standard ([ANSI/NISO Z39.50-2003](https://www.loc.gov/z3950/agency/Z39-50-2003.pdf)) that defines a client/server based service and protocol for information retrieval. Like MARC 21 Z39.50 has a quite long history ([Lynch, 1997](http://www.dlib.org/dlib/april97/04lynch.html))  and is maintained by Library of Congress.
 
-Many libraries offer access to their Online Public Access Catalogues (OAPC) via Z39.50 server, e.g. [Library of Congress](https://www.loc.gov/z3950/lcserver.html) or [kobv](https://www.kobv.de/services/recherche/z39-50/). 
+Many libraries offer access to their Online Public Access Catalogues (OAPC) via Z39.50 server, e.g. [Library of Congress](https://www.loc.gov/z3950/lcserver.html) or [kobv](https://www.kobv.de/services/recherche/z39-50/).
+
+See "[Bath Profile](http://www.ukoln.ac.uk/interop-focus/activities/z3950/int_profile/bath/draft/stable1.html#5.A.1.%20Functional%20Area%20A:%20Level%201%20Basic%20Bibliographic%20Search%20and%20Retrieval%20Emphasizing%20Precision)" for common search and retrieval operations and attribute sets.
 
 ---
 
@@ -1695,13 +1701,13 @@ isbn13(isbn)
 
 ## Links
 
-Cheat sheet: http://librecat.org/assets/catmandu_cheat_sheet.pdf
-
-MARC mapping rules: https://github.com/LibreCat/Catmandu-MARC/wiki/Mapping-rules
-
-MARC tutorial: https://metacpan.org/pod/distribution/Catmandu-MARC/lib/Catmandu/MARC/Tutorial.pod
-
-Example "fix": http://librecat.org/Catmandu/#example-fix-script
+- [Avram schema for MARC 21](https://pkiraly.github.io/2018/01/28/marc21-in-json/)
+- [Catmandu cheat sheet](http://librecat.org/assets/catmandu_cheat_sheet.pdf)
+- [Catmandu mapping rules](https://github.com/LibreCat/Catmandu-MARC/wiki/Mapping-rules)
+- [Catmandu::MARC::Tutorial](https://metacpan.org/dist/Catmandu-MARC/view/lib/Catmandu/MARC/Tutorial.pod)
+- [MARC Standards](https://www.loc.gov/marc/)
+- [MARC 21 format for Bibliographic Data](https://www.loc.gov/marc/bibliographic/)
+- [Tutorial "Processing MARC ... with open source tools"](https://jorol.github.io/processing-marc/#/)
 
 ---
 
