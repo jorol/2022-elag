@@ -280,7 +280,8 @@ Use fix `marc_map` to extract and map data from MARC records:
 
 ```bash
 $ catmandu convert MARC --type XML to TSV \
---fix 'marc_map(001,dc_identifier);marc_map(022a,bibo_issn,join:",");marc_map(245a,dc_title);remove_field(record)' \
+--fix 'marc_map(001,dc_identifier);marc_map(020a,bibo_isbn,join:",");marc_map(022a,bibo_issn,join:",");marc_map(245a,dc_title);remove_field(record)' \
+--fields dc_identifier,bibo_isbn,bibo_issn,dc_title \
 < elag.sru.xml
 ```
 
