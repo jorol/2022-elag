@@ -1392,7 +1392,7 @@ $ xmllint --xpath '//@tag' loc.mrc.xml | sort | uniq -c
 ## Extract all IDs from MARC 001:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="controlfield"][@*[local-name()="tag" and .="001"]]/text()' loc.mrc.xml
+$ xmllint --xpath '//*[local-name()="controlfield"][@tag="001"]/text()'  loc.mrc.xml
 ```
 
 ---
@@ -1400,7 +1400,7 @@ $ xmllint --xpath '//*[local-name()="controlfield"][@*[local-name()="tag" and .=
 ## Extract all subfields from MARC 245 fields
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]' loc.mrc.xml
+$ $ xmllint --xpath '//*[local-name()="datafield"][@tag="245"]' loc.mrc.xml
 ```
 
 ---
@@ -1408,7 +1408,7 @@ $ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="24
 ## Extract subfield "a" from MARC 245 fields
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/' loc.mrc.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="245"]/*[local-name()="subfield"][@code="a"]/' loc.mrc.xml
 ```
 
 ---
@@ -1416,7 +1416,7 @@ $ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="24
 ## Extract content from subfield "a" from MARC 245 fields
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="245"]/*[local-name()="subfield"][@code="a"]/text()' loc.mrc.xml
 ```
 
 ---
@@ -1424,7 +1424,7 @@ $ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="24
 ## Extraxt all ISBNs
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="020"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="020"]/*[local-name()="subfield"][@code="a"]/text()' loc.mrc.xml
 ```
 
 ---
@@ -1432,7 +1432,7 @@ $ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="02
 ## Extract all DDC numbers
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="082"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' loc.mrc.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="082"]/*[local-name()="subfield"][@code="a"]/text()' loc.mrc.xml
 ```
 
 ---
