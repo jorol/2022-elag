@@ -29,6 +29,7 @@ This bootcamp is aimed at systems librarians, metadata librarians and data manag
 
 ## Links
 
+- [Slides](/slides/index.html)
 - [Avram schema for MARC 21](https://pkiraly.github.io/2018/01/28/marc21-in-json/)
 - [Catmandu::MARC::Tutorial](https://metacpan.org/dist/Catmandu-MARC/view/lib/Catmandu/MARC/Tutorial.pod)
 - [MARC Standards](https://www.loc.gov/marc/)
