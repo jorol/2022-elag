@@ -223,31 +223,31 @@ $ xmllint --xpath '//@tag' elag.sru.xml | sort | uniq -c
 Get all IDs from MARC 001:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="controlfield"][@*[local-name()="tag" and .="001"]]/text()' elag.sru.xml
+$ xmllint --xpath '//*[local-name()="controlfield"][@tag="001"]/text()' elag.sru.xml
 ```
 
 Get all MARC 245 subfields:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]' elag.sru.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="245"]' elag.sru.xml
 ```
 
 Get title from MARC 245$a:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="245"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' elag.sru.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="245"]/*[local-name()="subfield"][@code="a"]/text()' elag.sru.xml
 ```
 
 Get all ISSN from MARC 022$a:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="022"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' elag.sru.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="022"]/*[local-name()="subfield"][@code="a"]/text()' elag.sru.xml
 ```
 
 Extract all DDC numbers from MARC 082$a:
 
 ```bash
-$ xmllint --xpath '//*[local-name()="datafield"][@*[local-name()="tag" and .="082"]]/*[local-name()="subfield"][@*[local-name()="code" and .="a"]]/text()' elag.sru.xml
+$ xmllint --xpath '//*[local-name()="datafield"][@tag="082"]/*[local-name()="subfield"][@code="a"]/text()' elag.sru.xml
 ```
 
 ### ... with `catmandu`
