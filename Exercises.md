@@ -163,7 +163,7 @@ $ catmandu convert -v SRU \
 --recordSchema MARC21-xml \
 --query 'dnb.zdbid = 242095-8' \
 --parser marcxml to MARC --type XML \
-| xmllint --pretty 1 - > elag.nfd.xml
+| xmllint --format - > elag.nfd.xml
 # convert to Unicode normalization form NFC
 $ uconv -x NFC elag.nfd.xml > elag.nfc.xml
 # show difference between files: only lines with umlauts are marked. 
